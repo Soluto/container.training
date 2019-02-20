@@ -32,7 +32,7 @@ Introduction<br/>to Containers<br/>
 
 ```
 
-These slides have been built from commit: a6413ae
+These slides have been built from commit: eb0ad45
 
 
 [shared/title.md](https://github.com/Soluto/container.training/tree/master/slides/shared/title.md)]
@@ -1203,11 +1203,12 @@ $ git clone https://github.com/jpetazzo/namer
 ```bash
 $ cd namer
 $ ls -1
-company_name_generator.rb
-config.ru
-docker-compose.yml
 Dockerfile
 Gemfile
+Gemfile.lock
+README.md
+company_name_generator.rb
+index.html.erb
 ```
 
 --
@@ -1217,101 +1218,16 @@ Aha, a `Gemfile`! This is Ruby. Probably. We know this. Maybe?
 .debug[[containers/Local_Development_Workflow.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Local_Development_Workflow.md)]
 ---
 
-## Looking at the `Dockerfile`
+## Let's start coding!
+Can we develop ruby code without installing ruby?
 
-```dockerfile
-FROM ruby
+Let's use docker!
 
-COPY . /src
-WORKDIR /src
-RUN bundler install
-
-CMD ["rackup", "--host", "0.0.0.0"]
-EXPOSE 9292
+```sh
+docker run -p 8752:8752 -v $(pwd):/src -it ruby /bin/bash
+root@59cc8a91c767:/#
 ```
-
-* This application is using a base `ruby` image.
-* The code is copied in `/src`.
-* Dependencies are installed with `bundler`.
-* The application is started with `rackup`.
-* It is listening on port 9292.
-
-.debug[[containers/Local_Development_Workflow.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Local_Development_Workflow.md)]
----
-
-## Building and running the "namer" application
-
-* Let's build the application with the `Dockerfile`!
-
---
-
-```bash
-$ docker build -t namer .
-```
-
---
-
-* Then run it. *We need to expose its ports.*
-
---
-
-```bash
-$ docker run -dP namer
-```
-
---
-
-* Check on which port the container is listening.
-
---
-
-```bash
-$ docker ps -l
-```
-
-.debug[[containers/Local_Development_Workflow.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Local_Development_Workflow.md)]
----
-
-## Connecting to our application
-
-* Point our browser to our Docker node, on the port allocated to the container.
-
---
-
-* Hit "reload" a few times.
-
---
-
-* This is an enterprise-class, carrier-grade, ISO-compliant company name generator!
-
-  (With 50% more bullshit than the average competition!)
-
-  (Wait, was that 50% more, or 50% less? *Anyway!*)
-
-  ![web application 1](images/webapp-in-blue.png)
-
-.debug[[containers/Local_Development_Workflow.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Local_Development_Workflow.md)]
----
-
-## Making changes to the code
-
-Option 1:
-
-* Edit the code locally
-* Rebuild the image
-* Re-run the container
-
-Option 2:
-
-* Enter the container (with `docker exec`)
-* Install an editor
-* Make changes from within the container
-
-Option 3:
-
-* Use a *volume* to mount local files into the container
-* Make changes locally
-* Changes are reflected into the container
+Now we have a full running ruby environment inside a container!
 
 .debug[[containers/Local_Development_Workflow.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Local_Development_Workflow.md)]
 ---
@@ -1321,7 +1237,7 @@ Option 3:
 We will tell Docker to map the current directory to `/src` in the container.
 
 ```bash
-$ docker run -d -v $(pwd):/src -P namer
+$ docker run -p 8752:8752 -v $(pwd):/src -it ruby /bin/bash
 ```
 
 * `-d`: the container should run in detached mode (in the background).
@@ -1361,27 +1277,48 @@ There will be a full chapter about volumes!
 .debug[[containers/Local_Development_Workflow.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Local_Development_Workflow.md)]
 ---
 
-## Testing the development container
-
-* Check the port used by our new container.
-
-```bash
-$ docker ps -l
-CONTAINER ID  IMAGE  COMMAND  CREATED        STATUS  PORTS                   NAMES
-045885b68bc5  namer  rackup   3 seconds ago  Up ...  0.0.0.0:32770->9292/tcp ...
+## Running the sample app
+To run the app inside our container:
+```sh
+root@59cc8a91c767:/# cd /src
+root@59cc8a91c767:/# bundle install
+root@59cc8a91c767:/# ruby company_name_generator.rb 
+server listening on port 5678
 ```
 
-* Open the application in your web browser.
+Our code is running! 
+
+How can we access our app?
 
 .debug[[containers/Local_Development_Workflow.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Local_Development_Workflow.md)]
 ---
 
+## Connecting to our application
+
+* Point our browser to our Docker node, on the port allocated to the container - 5678.
+
+--
+
+* Hit "reload" a few times.
+
+--
+
+* This is an enterprise-class, carrier-grade, ISO-compliant company name generator!
+
+  (With 50% more bullshit than the average competition!)
+
+  (Wait, was that 50% more, or 50% less? *Anyway!*)
+
+  ![web application 1](images/webapp-in-blue.png)
+
+.debug[[containers/Local_Development_Workflow.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Local_Development_Workflow.md)]
+---
 ## Making a change to our application
 
 Our customer really doesn't like the color of our text. Let's change it.
 
 ```bash
-$ vi company_name_generator.rb
+$ vi index.html.erb
 ```
 
 And change
@@ -1427,51 +1364,86 @@ color: red;
 .debug[[containers/Local_Development_Workflow.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Local_Development_Workflow.md)]
 ---
 
-## Trash your servers and burn your code
+## Looking at the `Dockerfile`
 
-*(This is the title of a
-[2013 blog post](http://chadfowler.com/2013/06/23/immutable-deployments.html)
-by Chad Fowler, where he explains the concept of immutable infrastructure.)*
+```dockerfile
+FROM ruby:2.1
+MAINTAINER Education Team at Docker <education@docker.com>
 
---
+WORKDIR /src
+COPY Gemfile /src
+RUN bundler install
+COPY . .
 
-* Let's mess up majorly with our container.
+CMD ["ruby", "company_name_generator.rb"]
+EXPOSE 8752
+```
 
-  (Remove files or whatever.)
-
-* Now, how can we fix this?
-
---
-
-* Our old container (with the blue version of the code) is still running.
-
-* See on which port it is exposed:
-  ```bash
-  docker ps
-  ```
-
-* Point our browser to it to confirm that it still works fine.
+* This application is using a base `ruby` image.
+* The code is copied in `/src`.
+* Dependencies are installed with `bundler`.
+* The application is started with `ruby`.
+* It is listening on port 8752.
 
 .debug[[containers/Local_Development_Workflow.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Local_Development_Workflow.md)]
 ---
 
-## Immutable infrastructure in a nutshell
+## Building and running the "namer" application
 
-* Instead of *updating* a server, we deploy a new one.
+* Let's build the application with the `Dockerfile`!
 
-* This might be challenging with classical servers, but it's trivial with containers.
+--
 
-* In fact, with Docker, the most logical workflow is to build a new image and run it.
+```bash
+$ docker build -t namer .
+```
 
-* If something goes wrong with the new image, we can always restart the old one.
+--
 
-* We can even keep both versions running side by side.
+* Then run it. *We need to expose its ports.*
 
-If this pattern sounds interesting, you might want to read about *blue/green deployment*
-and *canary deployments*.
+--
+
+```bash
+$ docker run -dP namer
+```
+
+--
+
+* Check on which port the container is listening.
+
+--
+
+```bash
+$ docker ps -l
+```
 
 .debug[[containers/Local_Development_Workflow.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Local_Development_Workflow.md)]
 ---
+
+## Making changes to the code
+
+Option 1:
+
+* Edit the code locally
+* Rebuild the image
+* Re-run the container
+
+Option 2:
+
+* Enter the container (with `docker exec`)
+* Install an editor
+* Make changes from within the container
+
+Option 3:
+
+* Use a *volume* to mount local files into the container
+* Make changes locally
+* Changes are reflected into the container
+
+.debug[[containers/Local_Development_Workflow.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Local_Development_Workflow.md)]
+---
+
 
 ## Recap of the development workflow
 
@@ -1495,56 +1467,6 @@ and *canary deployments*.
 5. Iterate and repeat steps 3 and 4 until satisfied.
 
 6. When done, commit+push source code changes.
-
-.debug[[containers/Local_Development_Workflow.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Local_Development_Workflow.md)]
----
-
-class: extra-details
-
-## Debugging inside the container
-
-Docker has a command called `docker exec`.
-
-It allows users to run a new process in a container which is already running.
-
-If sometimes you find yourself wishing you could SSH into a container: you can use `docker exec` instead.
-
-You can get a shell prompt inside an existing container this way, or run an arbitrary process for automation.
-
-.debug[[containers/Local_Development_Workflow.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Local_Development_Workflow.md)]
----
-
-class: extra-details
-
-## `docker exec` example
-
-```bash
-$ # You can run ruby commands in the area the app is running and more!
-$ docker exec -it <yourContainerId> bash
-root@5ca27cf74c2e:/opt/namer# irb
-irb(main):001:0> [0, 1, 2, 3, 4].map {|x| x ** 2}.compact
-=> [0, 1, 4, 9, 16]
-irb(main):002:0> exit
-```
-
-.debug[[containers/Local_Development_Workflow.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Local_Development_Workflow.md)]
----
-
-class: extra-details
-
-## Stopping the container
-
-Now that we're done let's stop our container.
-
-```bash
-$ docker stop <yourContainerID>
-```
-
-And remove it.
-
-```bash
-$ docker rm <yourContainerID>
-```
 
 .debug[[containers/Local_Development_Workflow.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Local_Development_Workflow.md)]
 ---
