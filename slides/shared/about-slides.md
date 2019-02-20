@@ -1,4 +1,5 @@
 ## About these slides
+- The content in these slides created by Jérôme Petazzoni and others, maintained by Soluto.
 
 - All the content is available in a public GitHub repository:
 
@@ -6,7 +7,7 @@
 
 - You can get updated "builds" of the slides there:
 
-  http://container.training/
+  https://container-training.soluto.io/
 
 <!--
 .exercise[

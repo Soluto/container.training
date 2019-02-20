@@ -5,9 +5,9 @@ title: |
 chat: "[Slack](https://dockercommunity.slack.com/messages/C7GKACWDV)"
 #chat: "[Gitter](https://gitter.im/jpetazzo/workshop-yyyymmdd-city)"
 
-gitrepo: github.com/jpetazzo/container.training
+gitrepo: github.com/soluto/container.training
 
-slides: http://container.training/
+slides: https://container-training.soluto.io/
 
 exclude:
 - self-paced
@@ -20,3 +20,5 @@ chapters:
   - containers/First_Containers.md
 - - containers/Initial_Images.md
   - containers/Local_Development_Workflow.md
+- shared/hire.md
+- shared/thankyou.md

@@ -11,58 +11,6 @@ TEMPLATE="""<html>
     <table>
       <tr><td class="header" colspan="3">{{ title }}</td></tr>
 
-      {% if coming_soon %}
-        <tr><td class="title" colspan="3">Coming soon near you</td></tr>
-
-        {% for item in coming_soon %}
-          <tr>
-            <td>{{ item.title }}</td>
-            <td>{% if item.slides %}<a class="slides" href="{{ item.slides }}" />{% endif %}</td>
-            <td><a class="attend" href="{{ item.attend }}" /></td>
-          </tr>
-          <tr>
-            <td class="details">Scheduled {{ item.prettydate }} at {{ item.event }} in {{item.city }}.</td>
-          </tr>
-        {% endfor %}
-      {% endif %}
-
-      {% if past_workshops %}
-        <tr><td class="title" colspan="3">Past workshops</td></tr>
-
-        {% for item in past_workshops[:5] %}
-          <tr>
-            <td>{{ item.title }}</td>
-            <td><a class="slides" href="{{ item.slides }}" /></td>
-            <td>{% if item.video %}<a class="video" href="{{ item.video }}" />{% endif %}</td>
-          </tr>
-          <tr>
-            <td class="details">Delivered {{ item.prettydate }} at {{ item.event }} in {{item.city }}.</td>
-          </tr>
-
-        {% endfor %}
-
-        {% if past_workshops[5:] %}
-          <tr>
-            <td>... and at least <a href="past.html">{{ past_workshops[5:] | length }} more</a>.</td>
-          </tr>
-        {% endif %}
-      {% endif %}
-
-      {% if recorded_workshops %}
-        <tr><td class="title" colspan="3">Recorded workshops</td></tr>
-
-        {% for item in recorded_workshops %}
-          <tr>
-            <td>{{ item.title }}</td>
-            <td><a class="slides" href="{{ item.slides }}" /></td>
-            <td><a class="video" href="{{ item.video }}" /></td>
-          </tr>
-          <tr>
-            <td class="details">Delivered {{ item.prettydate }} at {{ item.event }} in {{item.city }}.</td>
-          </tr>
-        {% endfor %}
-      {% endif %}
-
       {% if self_paced %}
         <tr><td class="title" colspan="3">Self-paced tutorials</td></tr>
         {% for item in self_paced %}
@@ -73,27 +21,12 @@ TEMPLATE="""<html>
         {% endfor %}
       {% endif %}
 
-      {% if all_past_workshops %}
-        <tr><td class="title" colspan="3">Past workshops</td></tr>
-        {% for item in all_past_workshops %}
-          <tr>
-            <td>{{ item.title }}</td>
-            <td><a class="slides" href="{{ item.slides }}" /></td>
-            {% if item.video %}
-              <td><a class="video" href="{{ item.video }}" /></td>
-            {% endif %}
-          </tr>
-          <tr>
-            <td class="details">Delivered {{ item.prettydate }} at {{ item.event }} in {{item.city }}.</td>
-          </tr>
-        {% endfor %}
-      {% endif %}
-
       <tr><td class="spacer"></td></tr>
 
       <tr>
         <td class="footer">
-          Maintained by Jérôme Petazzoni (<a href="https://twitter.com/jpetazzo">@jpetazzo</a>) and <a href="https://github.com/jpetazzo/container.training/graphs/contributors">contributors</a>.
+          Maintained by Soluto Engineering (<a href="https://twitter.com/solutoeng">@solutoeng</a>), based on Jérôme Petazzoni (<a href="https://twitter.com/jpetazzo">@jpetazzo</a>) and <a href="https://github.com/soluto/container.training/graphs/contributors">contributors</a> work.
+          The original training site is available <a href="http://container.training/">here</a>.
         </td>
       </tr>
     </table>
