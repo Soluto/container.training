@@ -139,22 +139,6 @@ Note: you will probably never have to do this yourself.
 
 ---
 
-## Creating other images
-
-`docker commit`
-
-* Saves all the changes made to a container into a new layer.
-* Creates a new image (effectively a copy of the container).
-
-`docker build` **(used 99% of the time)**
-
-* Performs a repeatable build sequence.
-* This is the preferred method!
-
-We will explain both methods in a moment.
-
----
-
 ## Images namespaces
 
 There are three namespaces:
