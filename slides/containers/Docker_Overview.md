@@ -193,7 +193,7 @@ Way faster and cheaper than creating VMs each time!
 
 class: extra-details
 
-## Use container images as build artefacts
+## Use container images as build artifacts
 
 1. Build your app from Dockerfiles
 
