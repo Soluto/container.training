@@ -42,7 +42,7 @@ By using Docker containers, we will get a consistent development environment.
 * Let's download the code.
 
 ```bash
-$ git clone https://github.com/jpetazzo/namer
+$ git clone https://github.com/omerlh/namer
 ```
 
 ---
