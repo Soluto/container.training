@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Advanced Docker And Docker Compose </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="workshop.css">
+  </head>
+  <body>
+    <!--
+    <div style="position: absolute; left: 20%; right: 20%; top: 30%;">
+      <h1 style="font-size: 3em;">Loading ...</h1>
+      The slides should show up here. If they don't, it might be
+      because you are accessing this file directly from your filesystem.
+      It needs to be served from a web server. You can try this:
+      <pre>
+        docker-compose up -d
+        open http://localhost:8888/workshop.html # on MacOS
+        xdg-open http://localhost:8888/workshop.html # on Linux
+      </pre>
+      Once the slides are loaded, this notice disappears when you
+      go full screen (e.g. by hitting "f").
+    </div>
+    -->
+    <textarea id="source">class: title, self-paced
+
+Advanced Docker<br/>And<br/>Docker Compose<br/>
+
+.nav[*Self-paced version*]
+
+.debug[
+```
+
+```
+
+These slides have been built from commit: 77bac9d
+
+
+[shared/title.md](https://github.com/Soluto/container.training/tree/master/slides/shared/title.md)]
+---
+
+class: title, in-person
+
+Advanced Docker<br/>And<br/>Docker Compose<br/><br/></br>
+
+.footnote[
+**Be kind to the WiFi!**<br/>
+<!-- *Use the 5G network.* -->
+*Don't use your hotspot.*<br/>
+*Don't stream videos or download big files during the workshop[.](https://www.youtube.com/watch?v=h16zyxiwDLY)*<br/>
+*Thank you!*
+
+**Slides: https://container-training.soluto.io/**
+]
+
+.debug[[shared/title.md](https://github.com/Soluto/container.training/tree/master/slides/shared/title.md)]
+---
+## About these slides
+- The content in these slides created by Jérôme Petazzoni and others, maintained by Soluto.
+
+- All the content is available in a public GitHub repository:
+
+  https://github.com/soluto/container.training
+
+- You can get updated "builds" of the slides there:
+
+  https://container-training.soluto.io/
+
+<!--
+.exercise[
+```open https://github.com/soluto/container.training```
+```open http://container.training/```
+]
+-->
+
+--
+
+- Typos? Mistakes? Questions? Feel free to hover over the bottom of the slide ...
+
+.footnote[.emoji[👇] Try it! The source file will be shown and you can view it on GitHub and fork and edit it.]
+
+<!--
+.exercise[
+```open https://github.com/soluto/container.training/tree/master/slides/common/about-slides.md```
+]
+-->
+
+.debug[[shared/about-slides.md](https://github.com/Soluto/container.training/tree/master/slides/shared/about-slides.md)]
+---
+
+class: extra-details
+
+## Extra details
+
+- This slide has a little magnifying glass in the top left corner
+
+- This magnifying glass indicates slides that provide extra details
+
+- Feel free to skip them if:
+
+  - you are in a hurry
+
+  - you are new to this and want to avoid cognitive overload
+
+  - you want only the most essential information
+
+- You can review these slides another time if you want, they'll be waiting for you ☺
+
+.debug[[shared/about-slides.md](https://github.com/Soluto/container.training/tree/master/slides/shared/about-slides.md)]
+---
+
+name: toc-chapter-1
+
+## Chapter 1
+
+- [Building Docker images with a Dockerfile](#toc-building-docker-images-with-a-dockerfile)
+
+- [Advanced Dockerfiles](#toc-advanced-dockerfiles)
+
+.debug[(auto-generated TOC)]
+---
+name: toc-chapter-2
+
+## Chapter 2
+
+- [Compose for development stacks](#toc-compose-for-development-stacks)
+
+.debug[(auto-generated TOC)]
+
+
+
+.debug[[shared/toc.md](https://github.com/Soluto/container.training/tree/master/slides/shared/toc.md)]
+---
+
+class: pic
+
+.interstitial[![Image separating from the next chapter](https://gallant-turing-d0d520.netlify.com/containers/Container-Ship-Freighter-Navigation-Elbe-Romance-1782991.jpg)]
+
+---
+
+name: toc-building-docker-images-with-a-dockerfile
+class: title
+
+Building Docker images with a Dockerfile
+
+.nav[
+[Previous section](#toc-)
+|
+[Back to table of contents](#toc-chapter-1)
+|
+[Next section](#toc-advanced-dockerfiles)
+]
+
+.debug[(automatically generated title slide)]
+
+---
+
+class: title
+
+# Building Docker images with a Dockerfile
+
+![Construction site with containers](images/title-building-docker-images-with-a-dockerfile.jpg)
+
+.debug[[containers/Building_Images_With_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Building_Images_With_Dockerfiles.md)]
+---
+
+## Objectives
+
+We will build a container image automatically, with a `Dockerfile`.
+
+At the end of this lesson, you will be able to:
+
+* Write a `Dockerfile`.
+
+* Build an image from a `Dockerfile`.
+
+.debug[[containers/Building_Images_With_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Building_Images_With_Dockerfiles.md)]
+---
+
+## `Dockerfile` overview
+
+* A `Dockerfile` is a build recipe for a Docker image.
+
+* It contains a series of instructions telling Docker how an image is constructed.
+
+* The `docker build` command builds an image from a `Dockerfile`.
+
+.debug[[containers/Building_Images_With_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Building_Images_With_Dockerfiles.md)]
+---
+
+## Writing our first `Dockerfile`
+
+Our Dockerfile must be in a **new, empty directory**.
+
+1. Create a directory to hold our `Dockerfile`.
+
+```bash
+$ mkdir myimage
+```
+
+2. Create a `Dockerfile` inside this directory.
+
+```bash
+$ cd myimage
+$ vim Dockerfile
+```
+
+Of course, you can use any other editor of your choice.
+
+.debug[[containers/Building_Images_With_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Building_Images_With_Dockerfiles.md)]
+---
+
+## Type this into our Dockerfile...
+
+```dockerfile
+FROM ubuntu
+RUN apt-get update
+RUN apt-get install figlet
+```
+
+* `FROM` indicates the base image for our build.
+
+* Each `RUN` line will be executed by Docker during the build.
+
+* Our `RUN` commands **must be non-interactive.**
+  <br/>(No input can be provided to Docker during the build.)
+
+* In many cases, we will add the `-y` flag to `apt-get`.
+
+.debug[[containers/Building_Images_With_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Building_Images_With_Dockerfiles.md)]
+---
+
+## Build it!
+
+Save our file, then execute:
+
+```bash
+$ docker build -t figlet .
+```
+
+* `-t` indicates the tag to apply to the image.
+
+* `.` indicates the location of the *build context*.
+
+We will talk more about the build context later.
+
+To keep things simple for now: this is the directory where our Dockerfile is located.
+
+.debug[[containers/Building_Images_With_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Building_Images_With_Dockerfiles.md)]
+---
+
+## What happens when we build the image?
+
+The output of `docker build` looks like this:
+
+.small[
+```bash
+docker build -t figlet .
+Sending build context to Docker daemon  2.048kB
+Step 1/3 : FROM ubuntu
+ ---> f975c5035748
+Step 2/3 : RUN apt-get update
+ ---> Running in e01b294dbffd
+(...output of the RUN command...)
+Removing intermediate container e01b294dbffd
+ ---> eb8d9b561b37
+Step 3/3 : RUN apt-get install figlet
+ ---> Running in c29230d70f9b
+(...output of the RUN command...)
+Removing intermediate container c29230d70f9b
+ ---> 0dfd7a253f21
+Successfully built 0dfd7a253f21
+Successfully tagged figlet:latest
+```
+]
+
+* The output of the `RUN` commands has been omitted.
+* Let's explain what this output means.
+
+.debug[[containers/Building_Images_With_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Building_Images_With_Dockerfiles.md)]
+---
+
+## Sending the build context to Docker
+
+```bash
+Sending build context to Docker daemon 2.048 kB
+```
+
+* The build context is the `.` directory given to `docker build`.
+
+* It is sent (as an archive) by the Docker client to the Docker daemon.
+
+* This allows to use a remote machine to build using local files.
+
+* Be careful (or patient) if that directory is big and your link is slow.
+
+.debug[[containers/Building_Images_With_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Building_Images_With_Dockerfiles.md)]
+---
+
+## Executing each step
+
+```bash
+Step 2/3 : RUN apt-get update
+ ---> Running in e01b294dbffd
+(...output of the RUN command...)
+Removing intermediate container e01b294dbffd
+ ---> eb8d9b561b37
+```
+
+* A container (`e01b294dbffd`) is created from the base image.
+
+* The `RUN` command is executed in this container.
+
+* The container is committed into an image (`eb8d9b561b37`).
+
+* The build container (`e01b294dbffd`) is removed.
+
+* The output of this step will be the base image for the next one.
+
+.debug[[containers/Building_Images_With_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Building_Images_With_Dockerfiles.md)]
+---
+
+## The caching system
+
+If you run the same build again, it will be instantaneous. Why?
+
+* After each build step, Docker takes a snapshot of the resulting image.
+
+* Before executing a step, Docker checks if it has already built the same sequence.
+
+* Docker uses the exact strings defined in your Dockerfile, so:
+
+  * `RUN apt-get install figlet cowsay ` 
+    <br/> is different from
+    <br/> `RUN apt-get install cowsay figlet`
+  
+  * `RUN apt-get update` is not re-executed when the mirrors are updated
+
+You can force a rebuild with `docker build --no-cache ...`.
+
+.debug[[containers/Building_Images_With_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Building_Images_With_Dockerfiles.md)]
+---
+
+## Running the image
+
+The resulting image is not different from the one produced manually.
+
+```bash
+$ docker run -ti figlet
+root@91f3c974c9a1:/# figlet hello
+ _          _ _       
+| |__   ___| | | ___  
+| '_ \ / _ \ | |/ _ \ 
+| | | |  __/ | | (_) |
+|_| |_|\___|_|_|\___/ 
+```
+
+
+Yay! .emoji[🎉]
+
+.debug[[containers/Building_Images_With_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Building_Images_With_Dockerfiles.md)]
+---
+
+## Using image and viewing history
+
+The `history` command lists all the layers composing an image.
+
+For each layer, it shows its creation time, size, and creation command.
+
+When an image was built with a Dockerfile, each layer corresponds to
+a line of the Dockerfile.
+
+```bash
+$ docker history figlet
+IMAGE         CREATED            CREATED BY                     SIZE
+f9e8f1642759  About an hour ago  /bin/sh -c apt-get install fi  1.627 MB
+7257c37726a1  About an hour ago  /bin/sh -c apt-get update      21.58 MB
+07c86167cdc4  4 days ago         /bin/sh -c #(nop) CMD ["/bin   0 B
+<missing>     4 days ago         /bin/sh -c sed -i 's/^#\s*\(   1.895 kB
+<missing>     4 days ago         /bin/sh -c echo '#!/bin/sh'    194.5 kB
+<missing>     4 days ago         /bin/sh -c #(nop) ADD file:b   187.8 MB
+```
+
+.debug[[containers/Building_Images_With_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Building_Images_With_Dockerfiles.md)]
+---
+
+## Introducing JSON syntax
+
+Most Dockerfile arguments can be passed in two forms:
+
+* plain string:
+  <br/>`RUN apt-get install figlet`
+
+* JSON list:
+  <br/>`RUN ["apt-get", "install", "figlet"]`
+
+We are going to change our Dockerfile to see how it affects the resulting image.
+
+.debug[[containers/Building_Images_With_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Building_Images_With_Dockerfiles.md)]
+---
+
+## Using JSON syntax in our Dockerfile
+
+Let's change our Dockerfile as follows!
+
+```dockerfile
+FROM ubuntu
+RUN apt-get update
+RUN ["apt-get", "install", "figlet"]
+```
+
+Then build the new Dockerfile.
+
+```bash
+$ docker build -t figlet .
+```
+
+.debug[[containers/Building_Images_With_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Building_Images_With_Dockerfiles.md)]
+---
+
+## JSON syntax vs string syntax
+
+Compare the new history:
+
+```bash
+$ docker history figlet
+IMAGE         CREATED            CREATED BY                     SIZE
+27954bb5faaf  10 seconds ago     apt-get install figlet         1.627 MB
+7257c37726a1  About an hour ago  /bin/sh -c apt-get update      21.58 MB
+07c86167cdc4  4 days ago         /bin/sh -c #(nop) CMD ["/bin   0 B
+<missing>     4 days ago         /bin/sh -c sed -i 's/^#\s*\(   1.895 kB
+<missing>     4 days ago         /bin/sh -c echo '#!/bin/sh'    194.5 kB
+<missing>     4 days ago         /bin/sh -c #(nop) ADD file:b   187.8 MB
+```
+
+* JSON syntax specifies an *exact* command to execute.
+
+* String syntax specifies a command to be wrapped within `/bin/sh -c "..."`.
+
+.debug[[containers/Building_Images_With_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Building_Images_With_Dockerfiles.md)]
+---
+
+## When to use JSON syntax and string syntax
+
+* String syntax:
+
+  * is easier to write
+  * interpolates environment variables and other shell expressions
+  * creates an extra process (`/bin/sh -c ...`) to parse the string
+  * requires `/bin/sh` to exist in the container
+
+* JSON syntax:
+
+  * is harder to write (and read!)
+  * passes all arguments without extra processing
+  * doesn't create an extra process
+  * doesn't require `/bin/sh` to exist in the container
+
+.debug[[containers/Building_Images_With_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Building_Images_With_Dockerfiles.md)]
+---
+
+class: pic
+
+.interstitial[![Image separating from the next chapter](https://gallant-turing-d0d520.netlify.com/containers/ShippingContainerSFBay.jpg)]
+
+---
+
+name: toc-advanced-dockerfiles
+class: title
+
+Advanced Dockerfiles
+
+.nav[
+[Previous section](#toc-building-docker-images-with-a-dockerfile)
+|
+[Back to table of contents](#toc-chapter-1)
+|
+[Next section](#toc-compose-for-development-stacks)
+]
+
+.debug[(automatically generated title slide)]
+
+---
+
+class: title
+
+# Advanced Dockerfiles
+
+![construction](images/title-advanced-dockerfiles.jpg)
+
+.debug[[containers/Advanced_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Advanced_Dockerfiles.md)]
+---
+
+## Objectives
+
+We have seen simple Dockerfiles to illustrate how Docker build
+container images.
+
+In this section, we will see more Dockerfile commands.
+
+.debug[[containers/Advanced_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Advanced_Dockerfiles.md)]
+---
+
+## `Dockerfile` usage summary
+
+* `Dockerfile` instructions are executed in order.
+
+* Each instruction creates a new layer in the image.
+
+* Docker maintains a cache with the layers of previous builds.
+
+* When there are no changes in the instructions and files making a layer,
+  the builder re-uses the cached layer, without executing the instruction for that layer.
+
+* The `FROM` instruction MUST be the first non-comment instruction.
+
+* Lines starting with `#` are treated as comments.
+
+* Some instructions (like `CMD` or `ENTRYPOINT`) update a piece of metadata.
+
+  (As a result, each call to these instructions makes the previous one useless.)
+
+.debug[[containers/Advanced_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Advanced_Dockerfiles.md)]
+---
+
+## The `RUN` instruction
+
+The `RUN` instruction can be specified in two ways.
+
+With shell wrapping, which runs the specified command inside a shell,
+with `/bin/sh -c`:
+
+```dockerfile
+RUN apt-get update
+```
+
+Or using the `exec` method, which avoids shell string expansion, and
+allows execution in images that don't have `/bin/sh`:
+
+```dockerfile
+RUN [ "apt-get", "update" ]
+```
+
+.debug[[containers/Advanced_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Advanced_Dockerfiles.md)]
+---
+
+## More about the `RUN` instruction
+
+`RUN` will do the following:
+
+* Execute a command.
+* Record changes made to the filesystem.
+* Work great to install libraries, packages, and various files.
+
+`RUN` will NOT do the following:
+
+* Record state of *processes*.
+* Automatically start daemons.
+
+If you want to start something automatically when the container runs,
+you should use `CMD` and/or `ENTRYPOINT`.
+
+.debug[[containers/Advanced_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Advanced_Dockerfiles.md)]
+---
+
+## Collapsing layers
+
+It is possible to execute multiple commands in a single step:
+
+```dockerfile
+RUN apt-get update && apt-get install -y wget && apt-get clean
+```
+
+It is also possible to break a command onto multiple lines:
+
+```dockerfile
+RUN apt-get update \
+ && apt-get install -y wget \
+ && apt-get clean
+```
+
+.debug[[containers/Advanced_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Advanced_Dockerfiles.md)]
+---
+
+## The `EXPOSE` instruction
+
+The `EXPOSE` instruction tells Docker what ports are to be published
+in this image.
+
+```dockerfile
+EXPOSE 8080
+EXPOSE 80 443
+EXPOSE 53/tcp 53/udp
+```
+
+* All ports are private by default.
+
+* Declaring a port with `EXPOSE` is not enough to make it public.
+
+* The `Dockerfile` doesn't control on which port a service gets exposed.
+
+.debug[[containers/Advanced_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Advanced_Dockerfiles.md)]
+---
+
+## Exposing ports
+
+* When you `docker run -p <port> ...`, that port becomes public.
+
+    (Even if it was not declared with `EXPOSE`.)
+
+* When you `docker run -P ...` (without port number), all ports
+  declared with `EXPOSE` become public.
+
+A *public port* is reachable from other containers and from outside the host.
+
+A *private port* is not reachable from outside.
+
+.debug[[containers/Advanced_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Advanced_Dockerfiles.md)]
+---
+
+## The `COPY` instruction
+
+The `COPY` instruction adds files and content from your host into the
+image.
+
+```dockerfile
+COPY . /src
+```
+
+This will add the contents of the *build context* (the directory
+passed as an argument to `docker build`) to the directory `/src`
+in the container.
+
+.debug[[containers/Advanced_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Advanced_Dockerfiles.md)]
+---
+
+## Build context isolation
+
+Note: you can only reference files and directories *inside* the
+build context. Absolute paths are taken as being anchored to
+the build context, so the two following lines are equivalent:
+
+```dockerfile
+COPY . /src
+COPY / /src
+```
+
+Attempts to use `..` to get out of the build context will be
+detected and blocked with Docker, and the build will fail.
+
+Otherwise, a `Dockerfile` could succeed on host A, but fail on host B.
+
+.debug[[containers/Advanced_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Advanced_Dockerfiles.md)]
+---
+
+## `ADD`
+
+`ADD` works almost like `COPY`, but has a few extra features.
+
+`ADD` can get remote files:
+
+```dockerfile
+ADD http://www.example.com/webapp.jar /opt/
+```
+
+This would download the `webapp.jar` file and place it in the `/opt`
+directory.
+
+`ADD` will automatically unpack zip files and tar archives:
+
+```dockerfile
+ADD ./assets.zip /var/www/htdocs/assets/
+```
+
+This would unpack `assets.zip` into `/var/www/htdocs/assets`.
+
+*However,* `ADD` will not automatically unpack remote archives.
+
+.debug[[containers/Advanced_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Advanced_Dockerfiles.md)]
+---
+
+## `ADD`, `COPY`, and the build cache
+
+* Before creating a new layer, Docker checks its build cache.
+
+* For most Dockerfile instructions, Docker only looks at the
+  `Dockerfile` content to do the cache lookup.
+
+* For `ADD` and `COPY` instructions, Docker also checks if the files
+  to be added to the container have been changed.
+
+* `ADD` always needs to download the remote file before
+  it can check if it has been changed.
+
+  (It cannot use,
+  e.g., ETags or If-Modified-Since headers.)
+
+.debug[[containers/Advanced_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Advanced_Dockerfiles.md)]
+---
+
+## `VOLUME`
+
+The `VOLUME` instruction tells Docker that a specific directory
+should be a *volume*.
+
+```dockerfile
+VOLUME /var/lib/mysql
+```
+
+Filesystem access in volumes bypasses the copy-on-write layer,
+offering native performance to I/O done in those directories.
+
+Volumes can be attached to multiple containers, allowing to
+"port" data over from a container to another, e.g. to
+upgrade a database to a newer version.
+
+It is possible to start a container in "read-only" mode.
+The container filesystem will be made read-only, but volumes
+can still have read/write access if necessary.
+
+.debug[[containers/Advanced_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Advanced_Dockerfiles.md)]
+---
+
+## The `WORKDIR` instruction
+
+The `WORKDIR` instruction sets the working directory for subsequent
+instructions.
+
+It also affects `CMD` and `ENTRYPOINT`, since it sets the working
+directory used when starting the container.
+   
+```dockerfile
+WORKDIR /src
+```
+
+You can specify `WORKDIR` again to change the working directory for
+further operations.
+
+.debug[[containers/Advanced_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Advanced_Dockerfiles.md)]
+---
+
+## The `ENV` instruction
+
+The `ENV` instruction specifies environment variables that should be
+set in any container launched from the image.
+
+```dockerfile
+ENV WEBAPP_PORT 8080
+```
+
+This will result in an environment variable being created in any
+containers created from this image of
+
+```bash
+WEBAPP_PORT=8080
+```
+
+You can also specify environment variables when you use `docker run`.
+
+```bash
+$ docker run -e WEBAPP_PORT=8000 -e WEBAPP_HOST=www.example.com ...
+```
+
+.debug[[containers/Advanced_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Advanced_Dockerfiles.md)]
+---
+
+## The `USER` instruction
+
+The `USER` instruction sets the user name or UID to use when running
+the image.
+
+It can be used multiple times to change back to root or to another user.
+
+.debug[[containers/Advanced_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Advanced_Dockerfiles.md)]
+---
+
+## The `CMD` instruction
+
+The `CMD` instruction is a default command run when a container is
+launched from the image.
+
+```dockerfile
+CMD [ "nginx", "-g", "daemon off;" ]
+```
+
+Means we don't need to specify `nginx -g "daemon off;"` when running the
+container.
+
+Instead of:
+
+```bash
+$ docker run <dockerhubUsername>/web_image nginx -g "daemon off;"
+```
+
+We can just do:
+
+```bash
+$ docker run <dockerhubUsername>/web_image
+```
+
+.debug[[containers/Advanced_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Advanced_Dockerfiles.md)]
+---
+
+## More about the `CMD` instruction
+
+Just like `RUN`, the `CMD` instruction comes in two forms.
+The first executes in a shell:
+
+```dockerfile
+CMD nginx -g "daemon off;"
+```
+
+The second executes directly, without shell processing:
+
+```dockerfile
+CMD [ "nginx", "-g", "daemon off;" ]
+```
+
+.debug[[containers/Advanced_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Advanced_Dockerfiles.md)]
+---
+
+class: extra-details
+
+## Overriding the `CMD` instruction
+
+The `CMD` can be overridden when you run a container.
+
+```bash
+$ docker run -it <dockerhubUsername>/web_image bash
+```
+
+Will run `bash` instead of `nginx -g "daemon off;"`.
+
+.debug[[containers/Advanced_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Advanced_Dockerfiles.md)]
+---
+
+## The `ENTRYPOINT` instruction
+
+The `ENTRYPOINT` instruction is like the `CMD` instruction,
+but arguments given on the command line are *appended* to the
+entry point.
+
+Note: you have to use the "exec" syntax (`[ "..." ]`).
+
+```dockerfile
+ENTRYPOINT [ "/bin/ls" ]
+```
+
+If we were to run:
+
+```bash
+$ docker run training/ls -l
+```
+
+Instead of trying to run `-l`, the container will run `/bin/ls -l`.
+
+.debug[[containers/Advanced_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Advanced_Dockerfiles.md)]
+---
+
+class: extra-details
+
+## Overriding the `ENTRYPOINT` instruction
+
+The entry point can be overridden as well.
+
+```bash
+$ docker run -it training/ls
+bin   dev  home  lib64  mnt  proc  run   srv  tmp  var
+boot  etc  lib   media  opt  root  sbin  sys  usr
+$ docker run -it --entrypoint bash training/ls
+root@d902fb7b1fc7:/#
+```
+
+.debug[[containers/Advanced_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Advanced_Dockerfiles.md)]
+---
+
+## How `CMD` and `ENTRYPOINT` interact
+
+The `CMD` and `ENTRYPOINT` instructions work best when used
+together.
+
+```dockerfile
+ENTRYPOINT [ "nginx" ]
+CMD [ "-g", "daemon off;" ]
+```
+
+The `ENTRYPOINT` specifies the command to be run and the `CMD`
+specifies its options. On the command line we can then potentially
+override the options when needed.
+
+```bash
+$ docker run -d <dockerhubUsername>/web_image -t
+```
+
+This will override the options `CMD` provided with new flags.
+
+.debug[[containers/Advanced_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Advanced_Dockerfiles.md)]
+---
+
+## Advanced Dockerfile instructions
+
+* `ONBUILD` lets you stash instructions that will be executed
+  when this image is used as a base for another one.
+* `LABEL` adds arbitrary metadata to the image.
+* `ARG` defines build-time variables (optional or mandatory).
+* `STOPSIGNAL` sets the signal for `docker stop` (`TERM` by default).
+* `HEALTHCHECK` defines a command assessing the status of the container.
+* `SHELL` sets the default program to use for string-syntax RUN, CMD, etc.
+
+.debug[[containers/Advanced_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Advanced_Dockerfiles.md)]
+---
+
+class: extra-details
+
+## The `ONBUILD` instruction
+
+The `ONBUILD` instruction is a trigger. It sets instructions that will
+be executed when another image is built from the image being build.
+
+This is useful for building images which will be used as a base
+to build other images.
+
+```dockerfile
+ONBUILD COPY . /src
+```
+
+* You can't chain `ONBUILD` instructions with `ONBUILD`.
+* `ONBUILD` can't be used to trigger `FROM` instructions.
+
+.debug[[containers/Advanced_Dockerfiles.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Advanced_Dockerfiles.md)]
+---
+
+class: pic
+
+.interstitial[![Image separating from the next chapter](https://gallant-turing-d0d520.netlify.com/containers/aerial-view-of-containers.jpg)]
+
+---
+
+name: toc-compose-for-development-stacks
+class: title
+
+Compose for development stacks
+
+.nav[
+[Previous section](#toc-advanced-dockerfiles)
+|
+[Back to table of contents](#toc-chapter-2)
+|
+[Next section](#toc-)
+]
+
+.debug[(automatically generated title slide)]
+
+---
+# Compose for development stacks
+
+Dockerfiles are great to build container images.
+
+But what if we work with a complex stack made of multiple containers?
+
+Eventually, we will want to write some custom scripts and automation to build, run, and connect
+our containers together.
+
+There is a better way: using Docker Compose.
+
+In this section, you will use Compose to bootstrap a development environment.
+
+.debug[[containers/Compose_For_Dev_Stacks.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Compose_For_Dev_Stacks.md)]
+---
+
+## What is Docker Compose?
+
+Docker Compose (formerly known as `fig`) is an external tool.
+
+Unlike the Docker Engine, it is written in Python. It's open source as well.
+
+The general idea of Compose is to enable a very simple, powerful onboarding workflow:
+
+1. Checkout your code.
+
+2. Run `docker-compose up`.
+
+3. Your app is up and running!
+
+.debug[[containers/Compose_For_Dev_Stacks.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Compose_For_Dev_Stacks.md)]
+---
+
+## Compose overview
+
+This is how you work with Compose:
+
+* You describe a set (or stack) of containers in a YAML file called `docker-compose.yml`.
+
+* You run `docker-compose up`.
+
+* Compose automatically pulls images, builds containers, and starts them.
+
+* Compose can set up links, volumes, and other Docker options for you.
+
+* Compose can run the containers in the background, or in the foreground.
+
+* When containers are running in the foreground, their aggregated output is shown.
+
+Before diving in, let's see a small example of Compose in action.
+
+.debug[[containers/Compose_For_Dev_Stacks.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Compose_For_Dev_Stacks.md)]
+---
+
+class: pic
+
+![composeup](images/composeup.gif)
+
+.debug[[containers/Compose_For_Dev_Stacks.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Compose_For_Dev_Stacks.md)]
+---
+
+## Launching Our First Stack with Compose
+
+First step: clone the source code for the app we will be working on.
+
+```bash
+$ cd
+$ git clone https://github.com/jpetazzo/trainingwheels
+...
+$ cd trainingwheels
+```
+
+
+Second step: start your app.
+
+```bash
+$ docker-compose up
+```
+
+Watch Compose build and run your app with the correct parameters,
+including linking the relevant containers together.
+
+.debug[[containers/Compose_For_Dev_Stacks.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Compose_For_Dev_Stacks.md)]
+---
+
+## Launching Our First Stack with Compose
+
+Verify that the app is running at `http://<yourHostIP>:8000`.
+
+![composeapp](images/composeapp.png)
+
+.debug[[containers/Compose_For_Dev_Stacks.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Compose_For_Dev_Stacks.md)]
+---
+
+## Stopping the app
+
+When you hit `^C`, Compose tries to gracefully terminate all of the containers.
+
+After ten seconds (or if you press `^C` again) it will forcibly kill
+them.
+
+.debug[[containers/Compose_For_Dev_Stacks.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Compose_For_Dev_Stacks.md)]
+---
+
+## The `docker-compose.yml` file
+
+Here is the file used in the demo:
+
+.small[
+```yaml
+version: "2"
+
+services:
+  www:
+    build: www
+    ports:
+      - 8000:5000
+    user: nobody
+    environment:
+      DEBUG: 1
+    command: python counter.py
+    volumes:
+      - ./www:/src
+
+  redis:
+    image: redis
+```
+]
+
+.debug[[containers/Compose_For_Dev_Stacks.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Compose_For_Dev_Stacks.md)]
+---
+
+## Compose file structure
+
+A Compose file has multiple sections:
+
+* `version` is mandatory. (We should use `"2"` or later; version 1 is deprecated.)
+
+* `services` is mandatory. A service is one or more replicas of the same image running as containers.
+
+* `networks` is optional and indicates to which networks containers should be connected.
+  <br/>(By default, containers will be connected on a private, per-compose-file network.)
+
+* `volumes` is optional and can define volumes to be used and/or shared by the containers.
+
+.debug[[containers/Compose_For_Dev_Stacks.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Compose_For_Dev_Stacks.md)]
+---
+
+## Containers in `docker-compose.yml`
+
+Each service in the YAML file must contain either `build`, or `image`.
+
+* `build` indicates a path containing a Dockerfile.
+
+* `image` indicates an image name (local, or on a registry).
+
+* If both are specified, an image will be built from the `build` directory and named `image`.
+
+The other parameters are optional.
+
+They encode the parameters that you would typically add to `docker run`.
+
+Sometimes they have several minor improvements.
+
+.debug[[containers/Compose_For_Dev_Stacks.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Compose_For_Dev_Stacks.md)]
+---
+
+## Compose commands
+
+We already saw `docker-compose up`, but another one is `docker-compose build`.
+
+It will execute `docker build` for all containers mentioning a `build` path.
+
+It can also be invoked automatically when starting the application:
+
+```bash
+docker-compose up --build
+```
+
+Another common option is to start containers in the background:
+
+```bash
+docker-compose up -d
+```
+
+.debug[[containers/Compose_For_Dev_Stacks.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Compose_For_Dev_Stacks.md)]
+---
+
+## Check container status
+
+It can be tedious to check the status of your containers with `docker ps`,
+especially when running multiple apps at the same time.
+
+Compose makes it easier; with `docker-compose ps` you will see only the status of the
+containers of the current stack:
+
+
+```bash
+$ docker-compose ps
+Name                      Command             State           Ports          
+----------------------------------------------------------------------------
+trainingwheels_redis_1   /entrypoint.sh red   Up      6379/tcp               
+trainingwheels_www_1     python counter.py    Up      0.0.0.0:8000->5000/tcp 
+```
+
+.debug[[containers/Compose_For_Dev_Stacks.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Compose_For_Dev_Stacks.md)]
+---
+
+## Cleaning up (1)
+
+If you have started your application in the background with Compose and
+want to stop it easily, you can use the `kill` command:
+
+```bash
+$ docker-compose kill
+```
+
+Likewise, `docker-compose rm` will let you remove containers (after confirmation):
+
+```bash
+$ docker-compose rm
+Going to remove trainingwheels_redis_1, trainingwheels_www_1
+Are you sure? [yN] y
+Removing trainingwheels_redis_1...
+Removing trainingwheels_www_1...
+```
+
+.debug[[containers/Compose_For_Dev_Stacks.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Compose_For_Dev_Stacks.md)]
+---
+
+## Cleaning up (2)
+
+Alternatively, `docker-compose down` will stop and remove containers.
+
+It will also remove other resources, like networks that were created for the application.
+
+```bash
+$ docker-compose down
+Stopping trainingwheels_www_1 ... done
+Stopping trainingwheels_redis_1 ... done
+Removing trainingwheels_www_1 ... done
+Removing trainingwheels_redis_1 ... done
+```
+
+Use `docker-compose down -v` to remove everything including volumes.
+
+.debug[[containers/Compose_For_Dev_Stacks.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Compose_For_Dev_Stacks.md)]
+---
+
+## The `docker-compose.yml` file
+
+Here is the file used in the demo:
+
+.small[
+```yaml
+version: "2"
+
+services:
+  www:
+    build: www
+    ports:
+      - 8000:5000
+    user: nobody
+    environment:
+      DEBUG: 1
+    command: python counter.py
+    volumes:
+      - ./www:/src
+
+  redis:
+    image: redis
+```
+]
+
+.debug[[containers/Compose_For_Dev_Stacks.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Compose_For_Dev_Stacks.md)]
+---
+
+## Service discovery in container-land
+
+How does each service find out the address of the other ones?
+
+--
+
+- We do not hard-code IP addresses in the code
+
+- We do not hard-code FQDN in the code, either
+
+- We just connect to a service name, and container-magic does the rest
+
+  (And by container-magic, we mean "a crafty, dynamic, embedded DNS server")
+  
+--
+
+For example, this is how the web is connected with the DB:
+```
+redis = redis.Redis("redis")
+```
+
+---
+.debug[[containers/Compose_For_Dev_Stacks.md](https://github.com/Soluto/container.training/tree/master/slides/containers/Compose_For_Dev_Stacks.md)]
+---
+class: title, self-paced
+
+We're Hiring!
+.debug[[shared/hire.md](https://github.com/Soluto/container.training/tree/master/slides/shared/hire.md)]
+---
+
+class: title, in-person
+
+Enjoyed the workshop? 
+Love working with Containers? 
+
+So do we!
+
+Join us - Check out our [open positions](http://jobs.soluto.com)!
+
+![end](images/soluto.jpg)
+
+.debug[[shared/hire.md](https://github.com/Soluto/container.training/tree/master/slides/shared/hire.md)]
+---
+class: title, self-paced
+
+Thank you!
+
+.debug[[shared/thankyou.md](https://github.com/Soluto/container.training/tree/master/slides/shared/thankyou.md)]
+---
+
+class: title, in-person
+
+That's all, folks! <br/> Questions?
+
+![end](images/end.jpg)
+
+.debug[[shared/thankyou.md](https://github.com/Soluto/container.training/tree/master/slides/shared/thankyou.md)]</textarea>
+    <script src="remark.min.js" type="text/javascript">
+    </script>
+    <script type="text/javascript">
+      var slideshow = remark.create({
+        ratio: '16:9',
+        highlightSpans: true,
+        excludedClasses: ["self-paced"]
+      });
+    </script>
+    
+    <!-- 
+    These two scripts will be available only when loading the
+    content using the pub/sub server. Otherwise, they'll just
+    404 and that's OK.
+    -->
+    <script src="/socket.io/socket.io.js">
+    </script>
+    <script src="/remote.js">
+    </script>
+
+  </body>
+</html>
