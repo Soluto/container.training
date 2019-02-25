@@ -1,0 +1,24 @@
+title: |
+  Advanced Docker
+  And
+  Docker Compose
+
+chat: "[Slack](https://dockercommunity.slack.com/messages/C7GKACWDV)"
+#chat: "[Gitter](https://gitter.im/jpetazzo/workshop-yyyymmdd-city)"
+
+gitrepo: github.com/soluto/container.training
+
+slides: https://container-training.soluto.io/
+
+exclude:
+- self-paced
+
+chapters:
+- shared/title.md
+- shared/about-slides.md
+- shared/toc.md
+- - containers/Building_Images_With_Dockerfiles.md
+  - containers/Advanced_Dockerfiles.md
+- - containers/Compose_For_Dev_Stacks.md
+- shared/hire.md
+- shared/thankyou.md

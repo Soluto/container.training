@@ -55,23 +55,6 @@ class: pic
 
 ---
 
-## Checking if Compose is installed
-
-If you are using the official training virtual machines, Compose has been
-pre-installed.
-
-If you are using Docker for Mac/Windows or the Docker Toolbox, Compose comes with them.
-
-If you are on Linux (desktop or server environment), you will need to install Compose from its [release page](https://github.com/docker/compose/releases) or with `pip install docker-compose`.
-
-You can always check that it is installed by running:
-
-```bash
-$ docker-compose --version
-```
-
----
-
 ## Launching Our First Stack with Compose
 
 First step: clone the source code for the app we will be working on.
@@ -154,21 +137,6 @@ A Compose file has multiple sections:
 
 ---
 
-## Compose file versions
-
-* Version 1 is legacy and shouldn't be used.
-
-  (If you see a Compose file without `version` and `services`, it's a legacy v1 file.)
-
-* Version 2 added support for networks and volumes.
-
-* Version 3 added support for deployment options (scaling, rolling updates, etc).
-
-The [Docker documentation](https://docs.docker.com/compose/compose-file/)
-has excellent information about the Compose file format if you need to know more about versions.
-
----
-
 ## Containers in `docker-compose.yml`
 
 Each service in the YAML file must contain either `build`, or `image`.
@@ -184,20 +152,6 @@ The other parameters are optional.
 They encode the parameters that you would typically add to `docker run`.
 
 Sometimes they have several minor improvements.
-
----
-
-## Container parameters
-
-* `command` indicates what to run (like `CMD` in a Dockerfile).
-
-* `ports` translates to one (or multiple) `-p` options to map ports.
-  <br/>You can specify local ports (i.e. `x:y` to expose public port `x`).
-
-* `volumes` translates to one (or multiple) `-v` options.
-  <br/>You can use relative paths here.
-
-For the full list, check: https://docs.docker.com/compose/compose-file/
 
 ---
 
@@ -279,46 +233,52 @@ Use `docker-compose down -v` to remove everything including volumes.
 
 ---
 
-## Special handling of volumes
+## The `docker-compose.yml` file
 
-Compose is smart. If your container uses volumes, when you restart your
-application, Compose will create a new container, but carefully re-use
-the volumes it was using previously.
+Here is the file used in the demo:
 
-This makes it easy to upgrade a stateful service, by pulling its
-new image and just restarting your stack with Compose.
+.small[
+```yaml
+version: "2"
 
----
+services:
+  www:
+    build: www
+    ports:
+      - 8000:5000
+    user: nobody
+    environment:
+      DEBUG: 1
+    command: python counter.py
+    volumes:
+      - ./www:/src
 
-## Compose project name
-
-* When you run a Compose command, Compose infers the "project name" of your app.
-
-* By default, the "project name" is the name of the current directory.
-
-* For instance, if you are in `/home/zelda/src/ocarina`, the project name is `ocarina`.
-
-* All resources created by Compose are tagged with this project name.
-
-* The project name also appears as a prefix of the names of the resources.
-
-  E.g. in the previous example, service `www` will create a container `ocarina_www_1`.
-
-* The project name can be overridden with `docker-compose -p`.
+  redis:
+    image: redis
+```
+]
 
 ---
 
-## Running two copies of the same app
+## Service discovery in container-land
 
-If you want to run two copies of the same app simultaneously, all you have to do is to
-make sure that each copy has a different project name.
+How does each service find out the address of the other ones?
 
-You can:
+--
 
-* copy your code in a directory with a different name
+- We do not hard-code IP addresses in the code
 
-* start each copy with `docker-compose -p myprojname up`
+- We do not hard-code FQDN in the code, either
 
-Each copy will run in a different network, totally isolated from the other.
+- We just connect to a service name, and container-magic does the rest
 
-This is ideal to debug regressions, do side-by-side comparisons, etc.
+  (And by container-magic, we mean "a crafty, dynamic, embedded DNS server")
+  
+--
+
+For example, this is how the web is connected with the DB:
+```
+redis = redis.Redis("redis")
+```
+
+---
