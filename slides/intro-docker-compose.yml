@@ -16,9 +16,9 @@ exclude:
 chapters:
 - shared/title.md
 - shared/about-slides.md
+- shared/compose-exercise.md
 - shared/toc.md
 - - containers/Building_Images_With_Dockerfiles.md
-  - containers/Advanced_Dockerfiles.md
-- - containers/Compose_For_Dev_Stacks.md
+  - containers/Compose_For_Dev_Stacks.md
 - shared/hire.md
 - shared/thankyou.md

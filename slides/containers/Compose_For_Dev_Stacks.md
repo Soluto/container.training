@@ -4,6 +4,8 @@ Dockerfiles are great to build container images.
 
 But what if we work with a complex stack made of multiple containers?
 
+In our case - run integration tests that requires Mongo DB.
+
 Eventually, we will want to write some custom scripts and automation to build, run, and connect
 our containers together.
 
@@ -45,54 +47,6 @@ This is how you work with Compose:
 
 * When containers are running in the foreground, their aggregated output is shown.
 
-Before diving in, let's see a small example of Compose in action.
-
----
-
-class: pic
-
-![composeup](images/composeup.gif)
-
----
-
-## Launching Our First Stack with Compose
-
-First step: clone the source code for the app we will be working on.
-
-```bash
-$ cd
-$ git clone https://github.com/jpetazzo/trainingwheels
-...
-$ cd trainingwheels
-```
-
-
-Second step: start your app.
-
-```bash
-$ docker-compose up
-```
-
-Watch Compose build and run your app with the correct parameters,
-including linking the relevant containers together.
-
----
-
-## Launching Our First Stack with Compose
-
-Verify that the app is running at `http://<yourHostIP>:8000`.
-
-![composeapp](images/composeapp.png)
-
----
-
-## Stopping the app
-
-When you hit `^C`, Compose tries to gracefully terminate all of the containers.
-
-After ten seconds (or if you press `^C` again) it will forcibly kill
-them.
-
 ---
 
 ## The `docker-compose.yml` file
@@ -101,22 +55,20 @@ Here is the file used in the demo:
 
 .small[
 ```yaml
-version: "2"
+version: '3'
 
 services:
-  www:
-    build: www
-    ports:
-      - 8000:5000
-    user: nobody
+  mongo:
+    image: mongo
+    logging:
+      driver: none
+  api:
+    build:
+      context: ../
+      dockerfile: ./solution/Dockerfile
+    command: ["yarn", "test"]
     environment:
-      DEBUG: 1
-    command: python counter.py
-    volumes:
-      - ./www:/src
-
-  redis:
-    image: redis
+      - CONNECTION_STRING=mongodb://mongo:27017
 ```
 ]
 
@@ -129,11 +81,6 @@ A Compose file has multiple sections:
 * `version` is mandatory. (We should use `"2"` or later; version 1 is deprecated.)
 
 * `services` is mandatory. A service is one or more replicas of the same image running as containers.
-
-* `networks` is optional and indicates to which networks containers should be connected.
-  <br/>(By default, containers will be connected on a private, per-compose-file network.)
-
-* `volumes` is optional and can define volumes to be used and/or shared by the containers.
 
 ---
 
@@ -151,112 +98,27 @@ The other parameters are optional.
 
 They encode the parameters that you would typically add to `docker run`.
 
-Sometimes they have several minor improvements.
-
 ---
 
 ## Compose commands
 
-We already saw `docker-compose up`, but another one is `docker-compose build`.
-
-It will execute `docker build` for all containers mentioning a `build` path.
-
-It can also be invoked automatically when starting the application:
+To launch the stack, run:
 
 ```bash
 docker-compose up --build
 ```
 
-Another common option is to start containers in the background:
-
-```bash
-docker-compose up -d
-```
-
 ---
 
-## Check container status
+## Waiting for tests to complete
 
-It can be tedious to check the status of your containers with `docker ps`,
-especially when running multiple apps at the same time.
+We saw how to run the tests, but how can we use that to run tests?
 
-Compose makes it easier; with `docker-compose ps` you will see only the status of the
-containers of the current stack:
-
+This is where we can use the `--exit-code-from` flag:
 
 ```bash
-$ docker-compose ps
-Name                      Command             State           Ports          
-----------------------------------------------------------------------------
-trainingwheels_redis_1   /entrypoint.sh red   Up      6379/tcp               
-trainingwheels_www_1     python counter.py    Up      0.0.0.0:8000->5000/tcp 
+docker-compose up --exit-code-from api
 ```
-
----
-
-## Cleaning up (1)
-
-If you have started your application in the background with Compose and
-want to stop it easily, you can use the `kill` command:
-
-```bash
-$ docker-compose kill
-```
-
-Likewise, `docker-compose rm` will let you remove containers (after confirmation):
-
-```bash
-$ docker-compose rm
-Going to remove trainingwheels_redis_1, trainingwheels_www_1
-Are you sure? [yN] y
-Removing trainingwheels_redis_1...
-Removing trainingwheels_www_1...
-```
-
----
-
-## Cleaning up (2)
-
-Alternatively, `docker-compose down` will stop and remove containers.
-
-It will also remove other resources, like networks that were created for the application.
-
-```bash
-$ docker-compose down
-Stopping trainingwheels_www_1 ... done
-Stopping trainingwheels_redis_1 ... done
-Removing trainingwheels_www_1 ... done
-Removing trainingwheels_redis_1 ... done
-```
-
-Use `docker-compose down -v` to remove everything including volumes.
-
----
-
-## The `docker-compose.yml` file
-
-Here is the file used in the demo:
-
-.small[
-```yaml
-version: "2"
-
-services:
-  www:
-    build: www
-    ports:
-      - 8000:5000
-    user: nobody
-    environment:
-      DEBUG: 1
-    command: python counter.py
-    volumes:
-      - ./www:/src
-
-  redis:
-    image: redis
-```
-]
 
 ---
 
@@ -278,7 +140,38 @@ How does each service find out the address of the other ones?
 
 For example, this is how the web is connected with the DB:
 ```
-redis = redis.Redis("redis")
+CONNECTION_STRING=mongodb://mongo:27017
 ```
 
 ---
+
+## A real life example
+
+The tools we learned today are used commonly for testings.
+Checkout for example [Kamus](https://github.com/Soluto/kamus) end to end tests.
+[CI build example](https://circleci.com/gh/Soluto/kamus/1346)
+
+.small[
+```
+version: '3'
+services:
+  encryptor:
+    image: $ENCRYPTOR_IMAGE
+    environment:
+  decryptor:
+    image: $DECRYPTOR_IMAGE
+    environment:
+      - Kubernetes__ProxyUrl=http://wiremock:8080
+  black-box:
+    build:
+      context: ../
+    environment:
+      - ENCRYPTOR=http://encryptor:9999/
+      - DECRYPTOR=http://decryptor:9999/
+      - PROXY_URL=http://zap:8090
+      - KUBERNETES_URL=http://wiremock:8080
+  wiremock:
+    build:
+      context: ../Wiremock
+```
+]
