@@ -64,8 +64,7 @@ services:
       driver: none
   api:
     build:
-      context: ../
-      dockerfile: ./solution/Dockerfile
+      context: .
     command: ["yarn", "test"]
     environment:
       - CONNECTION_STRING=mongodb://mongo:27017

@@ -1,5 +1,5 @@
 title: |
-  Advanced Docker
+  Dockerfile
   And
   Docker Compose
 
@@ -20,5 +20,5 @@ chapters:
 - shared/toc.md
 - - containers/Building_Images_With_Dockerfiles.md
   - containers/Compose_For_Dev_Stacks.md
-- shared/hire.md
 - shared/thankyou.md
+- shared/hire.md

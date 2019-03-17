@@ -159,8 +159,8 @@ Step 3/4 : COPY . .
 Step 4/4 : RUN yarn install
  ---> Running in bc1af5515cd0
 (...output of the RUN command...)
-Removing intermediate container e01b294dbffd
- ---> eb8d9b561b37
+Removing intermediate container bc1af5515cd0
+ ---> 46277efee36f
 ```
 
 * A container (`9b7600bcc932`) is created from the previous step.
