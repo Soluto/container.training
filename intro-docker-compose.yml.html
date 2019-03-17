@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Advanced Docker And Docker Compose </title>
+    <title>Dockerfile And Docker Compose </title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <link rel="stylesheet" href="workshop.css">
   </head>
@@ -23,7 +23,7 @@
     -->
     <textarea id="source">class: title, self-paced
 
-Advanced Docker<br/>And<br/>Docker Compose<br/>
+Dockerfile<br/>And<br/>Docker Compose<br/>
 
 .nav[*Self-paced version*]
 
@@ -32,7 +32,7 @@ Advanced Docker<br/>And<br/>Docker Compose<br/>
 
 ```
 
-These slides have been built from commit: 06ca7a1
+These slides have been built from commit: 7c9181c
 
 
 [shared/title.md](https://github.com/Soluto/container.training/tree/master/slides/shared/title.md)]
@@ -40,7 +40,7 @@ These slides have been built from commit: 06ca7a1
 
 class: title, in-person
 
-Advanced Docker<br/>And<br/>Docker Compose<br/><br/></br>
+Dockerfile<br/>And<br/>Docker Compose<br/><br/></br>
 
 .footnote[
 **Be kind to the WiFi!**<br/>
@@ -325,8 +325,8 @@ Step 3/4 : COPY . .
 Step 4/4 : RUN yarn install
  ---> Running in bc1af5515cd0
 (...output of the RUN command...)
-Removing intermediate container e01b294dbffd
- ---> eb8d9b561b37
+Removing intermediate container bc1af5515cd0
+ ---> 46277efee36f
 ```
 
 * A container (`9b7600bcc932`) is created from the previous step.
@@ -538,8 +538,7 @@ services:
       driver: none
   api:
     build:
-      context: ../
-      dockerfile: ./solution/Dockerfile
+      context: .
     command: ["yarn", "test"]
     environment:
       - CONNECTION_STRING=mongodb://mongo:27017
@@ -659,6 +658,21 @@ services:
 ---
 class: title, self-paced
 
+Thank you!
+
+.debug[[shared/thankyou.md](https://github.com/Soluto/container.training/tree/master/slides/shared/thankyou.md)]
+---
+
+class: title, in-person
+
+That's all, folks! <br/> Questions?
+
+![end](images/end.jpg)
+
+.debug[[shared/thankyou.md](https://github.com/Soluto/container.training/tree/master/slides/shared/thankyou.md)]
+---
+class: title, self-paced
+
 We're Hiring!
 .debug[[shared/hire.md](https://github.com/Soluto/container.training/tree/master/slides/shared/hire.md)]
 ---
@@ -674,22 +688,7 @@ Join us - Check out our [open positions](http://jobs.soluto.com)!
 
 ![end](images/soluto.jpg)
 
-.debug[[shared/hire.md](https://github.com/Soluto/container.training/tree/master/slides/shared/hire.md)]
----
-class: title, self-paced
-
-Thank you!
-
-.debug[[shared/thankyou.md](https://github.com/Soluto/container.training/tree/master/slides/shared/thankyou.md)]
----
-
-class: title, in-person
-
-That's all, folks! <br/> Questions?
-
-![end](images/end.jpg)
-
-.debug[[shared/thankyou.md](https://github.com/Soluto/container.training/tree/master/slides/shared/thankyou.md)]</textarea>
+.debug[[shared/hire.md](https://github.com/Soluto/container.training/tree/master/slides/shared/hire.md)]</textarea>
     <script src="remark.min.js" type="text/javascript">
     </script>
     <script type="text/javascript">

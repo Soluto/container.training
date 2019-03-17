@@ -32,7 +32,7 @@ Introduction<br/>to Containers<br/>
 
 ```
 
-These slides have been built from commit: 06ca7a1
+These slides have been built from commit: 7c9181c
 
 
 [shared/title.md](https://github.com/Soluto/container.training/tree/master/slides/shared/title.md)]
@@ -2753,8 +2753,8 @@ Step 3/4 : COPY . .
 Step 4/4 : RUN yarn install
  ---> Running in bc1af5515cd0
 (...output of the RUN command...)
-Removing intermediate container e01b294dbffd
- ---> eb8d9b561b37
+Removing intermediate container bc1af5515cd0
+ ---> 46277efee36f
 ```
 
 * A container (`9b7600bcc932`) is created from the previous step.
@@ -7423,8 +7423,7 @@ services:
       driver: none
   api:
     build:
-      context: ../
-      dockerfile: ./solution/Dockerfile
+      context: .
     command: ["yarn", "test"]
     environment:
       - CONNECTION_STRING=mongodb://mongo:27017
